@@ -14,26 +14,50 @@ def parse_tfrecord(example):
     return image
 
 
-def load_data(filepath):
-    """Loads the data given a filepath"""
+def load_tfrec_data(filepath, batch_size):
+    """Loads the tfrec data given a filepath"""
     directory = filepath
     files = []
     for filename in os.listdir(directory):
         f = os.path.join(directory, filename)
         if os.path.isfile(f):
             files.append(f)
-
-
     file_list_dataset = tf.data.Dataset.from_tensor_slices(files)
-
     data = file_list_dataset.interleave(
         lambda filename: tf.data.TFRecordDataset(filename).map(parse_tfrecord),
     )
+    return data.batch(batch_size)
 
-    return data
+def load_and_preprocess_jpeg(filepath):
+    """Loads the jpeg data given a filepath"""
+    image = tf.io.read_file(filepath)
+    image = tf.image.decode_jpeg(image, channels=3)
+    image = tf.cast(image, tf.float32) / 255.0
+    image = tf.image.resize(image, [256, 256])
+    return image
 
-if __name__ == '__main__':
-    image_dataset = load_data('data/photo_tfrec')
-    style_dataset = load_data('data/monet_tfrec')
-    for image in image_dataset.take(5):
-        print(image.shape)
+
+def load_jpeg_data(filepath, batch_size):
+    directory = filepath
+    file_names = os.listdir(directory)
+    file_paths = [os.path.join(directory, file_name) for file_name in file_names]
+    dataset = tf.data.Dataset.from_tensor_slices(file_paths)
+    dataset = dataset.map(load_and_preprocess_jpeg)
+    dataset = dataset.prefetch(buffer_size=tf.data.AUTOTUNE)
+    return dataset.batch(batch_size)
+
+
+def load_intel_data(filepath, batch_size):
+    dataset = tf.keras.preprocessing.image_dataset_from_directory(
+    filepath,
+    labels='inferred',
+    label_mode='categorical',
+    batch_size=batch_size,
+    image_size=(256, 256),
+    shuffle=True,
+    seed=42,
+    )
+    normalization_layer = tf.keras.layers.Rescaling(1./255)
+    # rescale to [0, 1]
+    dataset = dataset.map(lambda x, y: (normalization_layer(x), y))
+    return dataset
