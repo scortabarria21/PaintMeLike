@@ -46,7 +46,7 @@ class ConvolutionalEncoder(tf.keras.Model):
 
 
 def main():
-    # Ignore this, we are running it in the notebook
+    # Ignore this, we are running it in the N
     batch_size = 32
     train_dataset = load_intel_data('data/intel_images/seg_train', batch_size)
     test_dataset = load_intel_data('data/intel_images/seg_test', batch_size)
