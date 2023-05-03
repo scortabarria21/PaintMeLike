@@ -4,6 +4,11 @@ __pycache__/*
 __pycache__
 .ipynb_checkpoints/*
 .ipynb_checkpoints
-conv_model_checkpoints
-conv_model_checkpoints/*
+conv_model_checkpoints_DEPRECATED
+conv_model_checkpoints_DEPRECATED/*
+it_model_checkpoints/*
+it_model_checkpoints_DEPRECATED
+it_model_checkpoints_DEPRECATED/*
+DEPRECATED_decoder.py
+DEPRECATED_convolutional_encoder.py
 *.ipynb
